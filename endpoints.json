@@ -30,8 +30,7 @@
     "description": "serves an object containing one article",
     "queries": [],
     "exampleResponse": {
-      "articles": [
-        {
+      "article": {
           "article_id": 10,
           "title": "Seven inspirational thought leaders from Manchester UK",
           "topic": "mitch",
@@ -41,7 +40,6 @@
           "votes": 0,
           "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
         }
-      ]
     }
   }
 }
