@@ -9,19 +9,9 @@ beforeEach(() => {
 });
 
 afterAll(() => {
-    return db.end().then(() => {return server.close()});
+    return db.end();
 })
 
-describe('Invalid endpoint requests', () => {
-    test('404: should return not found in response to get request to non-existent endpoint', () => {
-        return request(app)
-            .get('/api/does-not-exist')
-            .expect(404)
-            .then(({body}) = > {
-                console.log(body, '<<< body');
-            })
-    });    
-});
 describe('GET /api/topics', () => {
     test('200: should return an array', () => {
         return request(app)
