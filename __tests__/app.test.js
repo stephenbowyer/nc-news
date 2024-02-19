@@ -101,12 +101,26 @@ describe('GET /api/articles/:article_id', () => {
                 expect(body.msg).toBe('Not Found');
             });
     });    
-    test('500: should return bad request error if non-numeric article ID given', () => {
+    test('400: should return bad request error if non-numeric article ID given', () => {
         return request(app)
             .get('/api/articles/999A')
-            .expect(500)
+            .expect(400)
             .then(({body}) => {
                 expect(body.msg).toBe('Bad Request');
             });
     });    
+});
+
+
+describe('GET /api/articles', () => {
+    test('200: should return an array of article objects containing the expected fields', () => {
+        return request(app)
+            .get('/api/articles')
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles.length).toBe(data.articleData.length);
+                expect(typeof body.articles[0]).toBe('object');
+                expect(Object.keys(body.articles[0])).toContain('author', 'title', 'article_id', 'body', 'topic', 'created_at', 'votes', 'article_img_url');
+            });
+    });
 });
