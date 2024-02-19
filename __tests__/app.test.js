@@ -1,5 +1,5 @@
 const request = require('supertest');
-const {app, server} = require('../app.js');
+const app = require('../app.js');
 const db = require('../db/connection.js');
 const seed = require('../db/seeds/seed.js');
 const data = require('../db/data/test-data/index.js')
@@ -17,6 +17,9 @@ describe('Invalid endpoint requests', () => {
         return request(app)
             .get('/api/does-not-exist')
             .expect(404)
+            .then(({body}) = > {
+                console.log(body, '<<< body');
+            })
     });    
 });
 describe('GET /api/topics', () => {
