@@ -1,3 +1,6 @@
 # Northcoders News API
 
-For instructions, please head over to [L2C NC News](https://l2c.northcoders.com/courses/be/nc-news).
+For configuring the database:
+
+echo PGDATABASE=nc_news >.env.environment
+echo PGDATABASE=nc_news_test >.env.test
