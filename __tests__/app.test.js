@@ -112,3 +112,45 @@ describe('GET /api/articles/:article_id', () => {
             });
     });    
 });
+
+
+describe('GET /api/articles', () => {
+    test('200: should return an array of article objects containing the expected fields', () => {
+        return request(app)
+            .get('/api/articles')
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles.length).toBe(data.articleData.length);
+                expect(typeof body.articles[0]).toBe('object');
+                expect(Object.keys(body.articles[0])).toContain('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'article_img_url', 'comment_count');
+                expect(Object.keys(body.articles[0])).not.toContain('body');
+            });
+    });
+    test('200: should return same number of articles as in dataset', () => {
+        return request(app)
+            .get('/api/articles')
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles.length).toBe(data.articleData.length);
+            });
+    });
+    test('200: should return articles sorted by created date', () => {
+        return request(app)
+            .get('/api/articles')
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles).toBeSortedBy('created_at', {descending: true});
+            });
+    });
+    test('200: should return correct count of comments for each article', () => {
+        return request(app)
+            .get('/api/articles')
+            .expect(200)
+            .then(({body}) => {
+                body.articles.forEach((article) => {
+                    const expectedLength = data.commentData.filter((comment) => comment.article_id === article.article_id).length;
+                    expect(Number(article.comment_count)).toBe(expectedLength);
+                });
+            });
+    });
+});
