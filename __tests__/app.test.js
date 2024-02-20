@@ -222,6 +222,25 @@ describe('POST /api/articles/:article_id/comments', () => {
                 expect(Object.keys(body.comment)).toContain('comment_id', 'body', 'articleId', 'author', 'votes', 'created_at');
             });
     });
+    test('201: should ignore additional parameters and return a new posted comment', () => {
+        const articleId = 1;
+        const newComment = {username: "butter_bridge",
+            body: "This is an example comment",
+            something: "Ignore me",
+            hidden: "This should not be added"};
+        return request(app)
+            .post(`/api/articles/${articleId}/comments`)
+            .send(newComment)
+            .expect(201)
+            .then(({body}) => {
+                newComment['author'] = newComment['username']; delete newComment['username'];
+                delete newComment['something']; delete newComment['hidden'];
+                expect(body.comment).toMatchObject(newComment);
+                expect(body.comment.article_id).toBe(articleId);
+                expect(body.comment.votes).toBe(0);
+                expect(Object.keys(body.comment)).toContain('comment_id', 'body', 'articleId', 'author', 'votes', 'created_at');
+            });
+    });
     test('404: should return not found when adding a comment to a non-existent article ID', () => {
         const articleId = 999;
         const newComment = {username: "butter_bridge",
