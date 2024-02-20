@@ -1,11 +1,10 @@
 const db = require('../db/connection.js');
-const format = require('pg-format');
 
 function selectArticleComments(articleId){
     if (!(/^\d+$/.test(articleId)))
         return Promise.reject({status: 400, msg: "Bad Request"});
-    const queryString = format(`SELECT * FROM comments WHERE article_id = %L ORDER BY created_at DESC`, [articleId]);
-    return db.query(queryString).then((result) => {
+    const queryString = 'SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC';
+    return db.query(queryString, [articleId]).then((result) => {
         return result.rows;
     });
 }
