@@ -9,4 +9,15 @@ function selectArticleComments(articleId){
     });
 }
 
-module.exports = {selectArticleComments};
+function insertArticleComment(articleId, newComment){
+    if ((!newComment.username) || (!newComment.body) || (newComment.body.length === 0))
+        return Promise.reject({status: 400, msg: "Bad Request"});
+    const queryString = 'INSERT INTO comments(article_id, author, body) VALUES ($1, $2, $3) RETURNING *';
+    return db.query(queryString, [articleId, newComment.username, newComment.body]).then((result) => {
+        if (result.rowCount === 0)
+            return Promise.reject({status: 400, msg: "Bad Request"});
+        return result.rows[0];
+    });
+}
+
+module.exports = {selectArticleComments, insertArticleComment};
