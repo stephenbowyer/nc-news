@@ -122,6 +122,7 @@ describe('GET /api/articles', () => {
             .then(({body}) => {
                 expect(body.articles.length).toBe(data.articleData.length);
                 expect(typeof body.articles[0]).toBe('object');
+                expect(Array.isArray(body.articles[0])).toBe(false);
                 expect(Object.keys(body.articles[0])).toContain('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'article_img_url', 'comment_count');
                 expect(Object.keys(body.articles[0])).not.toContain('body');
             });
