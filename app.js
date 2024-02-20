@@ -4,11 +4,14 @@ const app = express();
 const {getTopics} = require('./controllers/topics.controllers.js');
 const {getApis} = require('./controllers/api.controllers.js');
 const {getArticle, getArticles} = require('./controllers/articles.controllers.js');
+const {getArticleComments} = require('./controllers/comments.controllers.js');
 
 app.get('/api/topics', getTopics);
 app.get('/api', getApis);
 app.get('/api/articles/:article_id', getArticle);
 app.get('/api/articles', getArticles);
+app.get('/api/articles/:article_id/comments', getArticleComments);
+
 
 app.use((err,request,response,next) => {
     if (err.status && err.msg){

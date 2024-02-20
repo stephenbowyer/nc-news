@@ -4,6 +4,7 @@ const db = require('../db/connection.js');
 const seed = require('../db/seeds/seed.js');
 const data = require('../db/data/test-data/index.js');
 const { expect } = require('@jest/globals');
+const { log } = require('console');
 
 beforeEach(() => {
     return seed(data);
@@ -94,7 +95,7 @@ describe('GET /api/articles/:article_id', () => {
                 expect(typeof body.article).toBe('object');
                 expect(body.article).toMatchObject(expectedOutput);
             });
-    });    
+    });
     test('404: should not found when non-exsitent article ID', () => {
         return request(app)
             .get('/api/articles/999')
@@ -152,6 +153,58 @@ describe('GET /api/articles', () => {
                     const expectedLength = data.commentData.filter((comment) => comment.article_id === article.article_id).length;
                     expect(Number(article.comment_count)).toBe(expectedLength);
                 });
+            });
+    });
+});
+describe('GET /api/articles/:article_id/comments', () => {
+    test('200: should return an array of comment objects matching the dataset', () => {
+        const articleId = 3;
+        return request(app)
+            .get(`/api/articles/${articleId}/comments`)
+            .expect(200)
+            .then(({body}) => {
+                const expectedOutput = data.commentData.filter(({...comment}) => comment.article_id === articleId);
+                expect(body.comments.length).toBe(expectedOutput.length);
+                body.comments.forEach((comment) => {
+                    expect(typeof comment).toBe('object');
+                    expect(Array.isArray(comment)).toBe(false);
+                    expect(Object.keys(comment)).toContain('comment_id', 'votes', 'created_at', 'author', 'body', 'article_id');
+                    expect(comment.article_id).toBe(articleId);
+                });
+            });
+    });
+    test('200: should return comments sorted by created date', () => {
+        return request(app)
+            .get('/api/articles/1/comments')
+            .expect(200)
+            .then(({body}) => {
+                console.log(body)
+                expect(body.comments).toBeSortedBy('created_at', {descending: true});
+            });
+    });
+    test('200: should return an empty array if article ID exists but has no comments', () => {
+        return request(app)
+            .get('/api/articles/2/comments')
+            .expect(200)
+            .then(({body}) => {
+                expect(Array.isArray(body.comments)).toBe(true);
+                expect(body.comments.length).toBe(0);
+            });
+    });    
+    test('404: should not found when non-exsitent article ID', () => {
+        return request(app)
+            .get('/api/articles/999/comments')
+            .expect(404)
+            .then(({body}) => {
+                expect(body.msg).toBe('Not Found');
+            });
+    });    
+    test('400: should return bad request error if non-numeric article ID given', () => {
+        return request(app)
+            .get('/api/articles/999A/comments')
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toBe('Bad Request');
             });
     });
 });
