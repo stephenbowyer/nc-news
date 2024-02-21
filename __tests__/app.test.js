@@ -3,6 +3,7 @@ const app = require('../app.js');
 const db = require('../db/connection.js');
 const seed = require('../db/seeds/seed.js');
 const data = require('../db/data/test-data/index.js');
+const { expect } = require('@jest/globals');
 
 beforeEach(() => {
     return seed(data);
@@ -309,6 +310,135 @@ describe('POST /api/articles/:article_id/comments', () => {
             .expect(400)
             .then(({body}) => {
                 expect(body.msg).toBe('Bad Request');
+            });
+    });
+});
+describe('PATCH /api/articles/:article_id', () => {
+    test('200: should return an updated patched article with an increase in votes', () => {
+        const articleId = 1;
+        const patch = {inc_votes: 100};
+        const expectedOutput = {...data.articleData[articleId - 1]};
+        expectedOutput.votes += patch.inc_votes;
+        // adjust for hour's difference between dataset and database
+        const createDate = new Date(expectedOutput.created_at);
+        expectedOutput.created_at = new Date(createDate.setHours(createDate.getHours() - 1)).toISOString();
+        return request(app)
+            .patch(`/api/articles/${articleId}`)
+            .send(patch)
+            .expect(200)
+            .then(({body}) => {
+                expect(typeof body.article).toBe('object');
+                expect(Array.isArray(body.article)).not.toBe(true);
+                expect(body.article).toMatchObject(expectedOutput);
+                expect(body.article.votes).toBe(expectedOutput.votes);
+            });
+    });
+    test('200: should return an updated patched article with a decrease in votes', () => {
+        const articleId = 1;
+        const patch = {inc_votes: -50};
+        const expectedOutput = {...data.articleData[articleId - 1]};
+        expectedOutput.votes += patch.inc_votes;
+        // adjust for hour's difference between dataset and database
+        const createDate = new Date(expectedOutput.created_at);
+        expectedOutput.created_at = new Date(createDate.setHours(createDate.getHours() - 1)).toISOString();
+        return request(app)
+            .patch(`/api/articles/${articleId}`)
+            .send(patch)
+            .expect(200)
+            .then(({body}) => {
+                expect(typeof body.article).toBe('object');
+                expect(Array.isArray(body.article)).not.toBe(true);
+                expect(body.article).toMatchObject(expectedOutput);
+                expect(body.article.votes).toBe(expectedOutput.votes);
+            });
+    });
+    test('200: should return an unchanged article when votes not changed', () => {
+        const articleId = 1;
+        const patch = {inc_votes: 0};
+        const expectedOutput = {...data.articleData[articleId - 1]};
+        expectedOutput.votes += patch.inc_votes;
+        // adjust for hour's difference between dataset and database
+        const createDate = new Date(expectedOutput.created_at);
+        expectedOutput.created_at = new Date(createDate.setHours(createDate.getHours() - 1)).toISOString();
+        return request(app)
+            .patch(`/api/articles/${articleId}`)
+            .send(patch)
+            .expect(200)
+            .then(({body}) => {
+                expect(typeof body.article).toBe('object');
+                expect(Array.isArray(body.article)).not.toBe(true);
+                expect(body.article).toMatchObject(expectedOutput);
+                expect(body.article.votes).toBe(expectedOutput.votes);
+            });
+    });
+    test('200: should return an unchanged article when votes key not specified in request object', () => {
+        const articleId = 1;
+        const patch = {};
+        const expectedOutput = {...data.articleData[articleId - 1]};
+        // adjust for hour's difference between dataset and database
+        const createDate = new Date(expectedOutput.created_at);
+        expectedOutput.created_at = new Date(createDate.setHours(createDate.getHours() - 1)).toISOString();
+        return request(app)
+            .patch(`/api/articles/${articleId}`)
+            .send(patch)
+            .expect(200)
+            .then(({body}) => {
+                expect(typeof body.article).toBe('object');
+                expect(Array.isArray(body.article)).not.toBe(true);
+                expect(body.article).toMatchObject(expectedOutput);
+                expect(body.article.votes).toBe(expectedOutput.votes);
+            });
+    });
+    test('200: should return an updated patched article with an increase in votes if supplied as a string', () => {
+        const articleId = 1;
+        const patch = {inc_votes: "100"};
+        const expectedOutput = {...data.articleData[articleId - 1]};
+        expectedOutput.votes += Number(patch.inc_votes);
+        // adjust for hour's difference between dataset and database
+        const createDate = new Date(expectedOutput.created_at);
+        expectedOutput.created_at = new Date(createDate.setHours(createDate.getHours() - 1)).toISOString();
+        return request(app)
+            .patch(`/api/articles/${articleId}`)
+            .send(patch)
+            .expect(200)
+            .then(({body}) => {
+                expect(typeof body.article).toBe('object');
+                expect(Array.isArray(body.article)).not.toBe(true);
+                expect(body.article).toMatchObject(expectedOutput);
+                expect(body.article.votes).toBe(expectedOutput.votes);
+            });
+    });
+    test('400: should return bad request error if non-numeric votes provided', () => {
+        const articleId = 1;
+        const patch = {inc_votes: "invalid input"};
+        return request(app)
+            .patch(`/api/articles/${articleId}`)
+            .send(patch)
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toBe('Bad Request');
+            });
+    });
+    test('400: should return bad request error if non-numeric article id provided', () => {
+        const articleId = "invalid article";
+        const patch = {inc_votes: 100};
+        return request(app)
+            .patch(`/api/articles/${articleId}`)
+            .send(patch)
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toBe('Bad Request');
+            });
+    });
+    test('404: should return not found error if specified article does not exist', () => {
+        const articleId = 999;
+        const patch = {inc_votes: 100};
+        return request(app)
+            .patch(`/api/articles/${articleId}`)
+            .send(patch)
+            .expect(404)
+            .then(({body}) => {
+                expect(body.msg).toBe('Not Found');
             });
     });
 });

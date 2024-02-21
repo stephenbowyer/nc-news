@@ -31,4 +31,19 @@ function selectAllArticles(){
       });
 }
 
-module.exports = {selectArticle, selectAllArticles};
+function updateArticleVotes(articleId, incVotes = 0){
+    if (!(/^-?\d+$/.test(incVotes)) || !(/^\d+$/.test(articleId)))
+        return Promise.reject({status: 400, msg: "Bad Request"});
+    const queryString = `
+        UPDATE articles SET votes = votes + $1
+        WHERE article_id = $2
+        RETURNING *
+        `;
+    return db.query(queryString, [incVotes, articleId]).then((result) => {
+        if (result.rowCount === 0)
+            return Promise.reject({status: 404, msg: "Not Found"});
+        return result.rows[0];
+    })
+}
+
+module.exports = {selectArticle, selectAllArticles, updateArticleVotes};
