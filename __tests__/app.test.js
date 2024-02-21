@@ -442,3 +442,53 @@ describe('PATCH /api/articles/:article_id', () => {
             });
     });
 });
+describe('DELETE /api/comments/:comment_id', () => {
+    test('204: should return no content when comment successfully deleted', () => {
+        const commentId = 1;
+        return request(app)
+            .delete(`/api/comments/${commentId}`)
+            .expect(204);
+    });
+    test('204: should delete requested comment from database', () => {
+        const articleId = 1;
+        let commentId = 0;
+        return request(app)
+            .get(`/api/articles/${articleId}/comments`)
+            .expect(200)
+            .then(({body}) => {
+                const originalLength = body.comments.length;
+                const expectedLength = originalLength - 1;
+                const commentId = body.comments[0].comment_id;
+                return request(app)
+                .delete(`/api/comments/${commentId}`)
+                .expect(204)
+                .then(() => {
+                    return request(app)
+                    .get(`/api/articles/${articleId}/comments`)
+                    .expect(200)
+                    .then(({body}) => {
+                        const actualLength = body.comments.length;
+                        expect(actualLength).toBe(expectedLength);
+                    });
+                });
+            });
+    });
+    test('404: should return not found when delete a non-existent comment', () => {
+        const commentId = 999;
+        return request(app)
+            .delete(`/api/comments/${commentId}`)
+            .expect(404)
+            .then(({body}) => {
+                expect(body.msg).toBe('Not Found');
+            });
+    });
+    test('400: should return bad request error if non-numeric comment ID given', () => {
+        const badCommentId = "999A";
+        return request(app)
+            .delete(`/api/comments/${badCommentId}`)
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toBe('Bad Request');
+            });
+    });
+});
