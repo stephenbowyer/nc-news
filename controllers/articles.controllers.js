@@ -18,7 +18,7 @@ function getArticles(request, response, next){
 
 function patchArticle(request, response, next){
     updateArticleVotes(request.params.article_id, request.body.inc_votes).then((article) => {
-        response.status(201).send({article});
+        response.status(200).send({article});
     }).catch((err) => {
         next(err);
     });

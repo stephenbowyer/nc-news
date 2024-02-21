@@ -314,7 +314,7 @@ describe('POST /api/articles/:article_id/comments', () => {
     });
 });
 describe('PATCH /api/articles/:article_id', () => {
-    test('201: should return an updated patched article with an increase in votes', () => {
+    test('200: should return an updated patched article with an increase in votes', () => {
         const articleId = 1;
         const patch = {inc_votes: 100};
         const expectedOutput = {...data.articleData[articleId - 1]};
@@ -325,7 +325,7 @@ describe('PATCH /api/articles/:article_id', () => {
         return request(app)
             .patch(`/api/articles/${articleId}`)
             .send(patch)
-            .expect(201)
+            .expect(200)
             .then(({body}) => {
                 expect(typeof body.article).toBe('object');
                 expect(Array.isArray(body.article)).not.toBe(true);
@@ -333,7 +333,7 @@ describe('PATCH /api/articles/:article_id', () => {
                 expect(body.article.votes).toBe(expectedOutput.votes);
             });
     });
-    test('201: should return an updated patched article with a decrease in votes', () => {
+    test('200: should return an updated patched article with a decrease in votes', () => {
         const articleId = 1;
         const patch = {inc_votes: -50};
         const expectedOutput = {...data.articleData[articleId - 1]};
@@ -344,7 +344,7 @@ describe('PATCH /api/articles/:article_id', () => {
         return request(app)
             .patch(`/api/articles/${articleId}`)
             .send(patch)
-            .expect(201)
+            .expect(200)
             .then(({body}) => {
                 expect(typeof body.article).toBe('object');
                 expect(Array.isArray(body.article)).not.toBe(true);
@@ -352,7 +352,7 @@ describe('PATCH /api/articles/:article_id', () => {
                 expect(body.article.votes).toBe(expectedOutput.votes);
             });
     });
-    test('201: should return an unchanged article when votes not changed', () => {
+    test('200: should return an unchanged article when votes not changed', () => {
         const articleId = 1;
         const patch = {inc_votes: 0};
         const expectedOutput = {...data.articleData[articleId - 1]};
@@ -363,7 +363,7 @@ describe('PATCH /api/articles/:article_id', () => {
         return request(app)
             .patch(`/api/articles/${articleId}`)
             .send(patch)
-            .expect(201)
+            .expect(200)
             .then(({body}) => {
                 expect(typeof body.article).toBe('object');
                 expect(Array.isArray(body.article)).not.toBe(true);
@@ -371,7 +371,7 @@ describe('PATCH /api/articles/:article_id', () => {
                 expect(body.article.votes).toBe(expectedOutput.votes);
             });
     });
-    test('201: should return an updated patched article with an increase in votes if supplied as a string', () => {
+    test('200: should return an updated patched article with an increase in votes if supplied as a string', () => {
         const articleId = 1;
         const patch = {inc_votes: "100"};
         const expectedOutput = {...data.articleData[articleId - 1]};
@@ -382,7 +382,7 @@ describe('PATCH /api/articles/:article_id', () => {
         return request(app)
             .patch(`/api/articles/${articleId}`)
             .send(patch)
-            .expect(201)
+            .expect(200)
             .then(({body}) => {
                 expect(typeof body.article).toBe('object');
                 expect(Array.isArray(body.article)).not.toBe(true);
