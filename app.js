@@ -6,6 +6,7 @@ const {getTopics} = require('./controllers/topics.controllers.js');
 const {getApis} = require('./controllers/api.controllers.js');
 const {getArticle, getArticles, patchArticle} = require('./controllers/articles.controllers.js');
 const {getArticleComments, postArticleComment, deleteComment} = require('./controllers/comments.controllers.js');
+const {getUsers} = require('./controllers/users.controllers.js');
 
 app.get('/api/topics', getTopics);
 app.get('/api', getApis);
@@ -15,6 +16,7 @@ app.get('/api/articles/:article_id/comments', getArticleComments);
 app.post('/api/articles/:article_id/comments', postArticleComment);
 app.patch('/api/articles/:article_id', patchArticle);
 app.delete('/api/comments/:comment_id', deleteComment);
+app.get('/api/users', getUsers);
 
 
 app.use((err,request,response,next) => {
