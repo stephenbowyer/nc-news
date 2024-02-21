@@ -31,7 +31,7 @@ function selectAllArticles(){
       });
 }
 
-function updateArticleVotes(articleId, incVotes){
+function updateArticleVotes(articleId, incVotes = 0){
     if (!(/^-?\d+$/.test(incVotes)) || !(/^\d+$/.test(articleId)))
         return Promise.reject({status: 400, msg: "Bad Request"});
     const queryString = `

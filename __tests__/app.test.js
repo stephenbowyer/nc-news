@@ -371,6 +371,24 @@ describe('PATCH /api/articles/:article_id', () => {
                 expect(body.article.votes).toBe(expectedOutput.votes);
             });
     });
+    test('200: should return an unchanged article when votes key not specified in request object', () => {
+        const articleId = 1;
+        const patch = {};
+        const expectedOutput = {...data.articleData[articleId - 1]};
+        // adjust for hour's difference between dataset and database
+        const createDate = new Date(expectedOutput.created_at);
+        expectedOutput.created_at = new Date(createDate.setHours(createDate.getHours() - 1)).toISOString();
+        return request(app)
+            .patch(`/api/articles/${articleId}`)
+            .send(patch)
+            .expect(200)
+            .then(({body}) => {
+                expect(typeof body.article).toBe('object');
+                expect(Array.isArray(body.article)).not.toBe(true);
+                expect(body.article).toMatchObject(expectedOutput);
+                expect(body.article.votes).toBe(expectedOutput.votes);
+            });
+    });
     test('200: should return an updated patched article with an increase in votes if supplied as a string', () => {
         const articleId = 1;
         const patch = {inc_votes: "100"};
@@ -393,17 +411,6 @@ describe('PATCH /api/articles/:article_id', () => {
     test('400: should return bad request error if non-numeric votes provided', () => {
         const articleId = 1;
         const patch = {inc_votes: "invalid input"};
-        return request(app)
-            .patch(`/api/articles/${articleId}`)
-            .send(patch)
-            .expect(400)
-            .then(({body}) => {
-                expect(body.msg).toBe('Bad Request');
-            });
-    });
-    test('400: should return bad request error if no inc_votes key provided', () => {
-        const articleId = 1;
-        const patch = {something_else: "invalid input"};
         return request(app)
             .patch(`/api/articles/${articleId}`)
             .send(patch)
