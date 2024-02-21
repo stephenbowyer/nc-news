@@ -1,4 +1,4 @@
-const {selectArticle, selectAllArticles} = require('../models/articles.models.js');
+const {selectArticle, selectAllArticles, updateArticleVotes} = require('../models/articles.models.js');
 
 function getArticle(request, response, next){
     selectArticle(request.params.article_id).then((article) => {
@@ -16,4 +16,12 @@ function getArticles(request, response, next){
     });
 }
 
-module.exports = {getArticle, getArticles};
+function patchArticle(request, response, next){
+    updateArticleVotes(request.params.article_id, request.body.inc_votes).then((article) => {
+        response.status(201).send({article});
+    }).catch((err) => {
+        next(err);
+    });
+}
+
+module.exports = {getArticle, getArticles, patchArticle};
