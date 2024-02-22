@@ -163,6 +163,7 @@ describe('GET /api/articles?topic=', () => {
             .get(`/api/articles?topic=${topicName}`)
             .expect(200)
             .then(({body}) => {
+                expect(Array.isArray(body.articles)).toBe(true);
                 expect(body.articles.length).toBe(expectedOutput.length);
             });
     });
@@ -172,6 +173,7 @@ describe('GET /api/articles?topic=', () => {
             .get(`/api/articles?topic=${topicName}`)
             .expect(200)
             .then(({body}) => {
+                expect(Array.isArray(body.articles)).toBe(true);
                 expect(body.articles.length).toBe(0);
             });
     });
