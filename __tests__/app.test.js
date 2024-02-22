@@ -110,7 +110,26 @@ describe('GET /api/articles/:article_id', () => {
             .then(({body}) => {
                 expect(body.msg).toBe('Bad Request');
             });
-    });    
+    });
+    test('200: should return correct count of comments for requested article', () => {
+        const articleId = 1;
+        return request(app)
+            .get(`/api/articles/${articleId}`)
+            .expect(200)
+            .then(({body}) => {
+                const expectedLength = data.commentData.filter((comment) => comment.article_id === articleId).length;
+                expect(Number(body.article.comment_count)).toBe(expectedLength);
+            });
+    });
+    test('200: should return correct count of zero comments for requested article', () => {
+        const articleId = 2;
+        return request(app)
+            .get(`/api/articles/${articleId}`)
+            .expect(200)
+            .then(({body}) => {
+                expect(Number(body.article.comment_count)).toBe(0);
+            });
+    });
 });
 
 

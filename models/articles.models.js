@@ -1,11 +1,21 @@
 const db = require('../db/connection.js');
-const format = require('pg-format');
 
 function selectArticle(articleId){
     if (!(/^\d+$/.test(articleId)))
         return Promise.reject({status: 400, msg: "Bad Request"});
-    const queryString = format('SELECT * FROM ARTICLES WHERE article_id = %L', [articleId]);
-    return db.query(queryString).then((result) => {
+    
+    const queryString = `
+        SELECT articles.*,
+            COUNT(comments.body) AS comment_count
+        FROM articles
+        LEFT JOIN comments
+            ON articles.article_id = comments.article_id
+        WHERE articles.article_id = $1
+        GROUP BY articles.article_id
+        ORDER BY articles.created_at DESC
+    `;
+    
+    return db.query(queryString, [articleId]).then((result) => {
         if (result.rowCount === 0)
             return Promise.reject({status: 404, msg: "Not Found"});
         return result.rows[0];
