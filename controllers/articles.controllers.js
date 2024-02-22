@@ -9,7 +9,7 @@ function getArticle(request, response, next){
 }
 
 function getArticles(request, response, next){
-    selectAllArticles().then((articles) => {
+    selectAllArticles(request.query.topic).then((articles) => {
         response.status(200).send({articles});
     }).catch((err) => {
         next(err);
