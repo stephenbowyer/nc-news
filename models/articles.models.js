@@ -32,10 +32,8 @@ function selectAllArticles(topicName){
         ORDER BY articles.created_at DESC
     `;
     return db.query(queryString, queryParams).then((result) => {
-        if (result.rowCount === 0)
-            return Promise.reject({status: 404, msg: "Not Found"});
         return result.rows;
-      });
+    });
 }
 
 function updateArticleVotes(articleId, incVotes = 0){

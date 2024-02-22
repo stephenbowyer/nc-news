@@ -166,13 +166,13 @@ describe('GET /api/articles?topic=', () => {
                 expect(body.articles.length).toBe(expectedOutput.length);
             });
     });
-    test('404: should return Not Found if no articles found for valid topic', () => {
+    test('200: should return empty array if no articles found for valid topic', () => {
         const topicName = "paper";
         return request(app)
             .get(`/api/articles?topic=${topicName}`)
-            .expect(404)
+            .expect(200)
             .then(({body}) => {
-                expect(body.msg).toBe('Not Found');
+                expect(body.articles.length).toBe(0);
             });
     });
     test('404: should return Not Found if specified topic is not valid', () => {
