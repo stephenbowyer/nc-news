@@ -1,4 +1,5 @@
 const {selectArticle, selectAllArticles, updateArticleVotes} = require('../models/articles.models.js');
+const {selectTopic} = require('../models/topics.models.js');
 
 function getArticle(request, response, next){
     selectArticle(request.params.article_id).then((article) => {
@@ -9,8 +10,13 @@ function getArticle(request, response, next){
 }
 
 function getArticles(request, response, next){
-    selectAllArticles().then((articles) => {
-        response.status(200).send({articles});
+    const promises = [selectAllArticles(request.query.topic)];
+    if (request.query.topic){
+        promises.push(selectTopic(request.query.topic));
+    }
+    
+    Promise.all(promises).then((promiseResolutions) => {
+        response.status(200).send({articles: promiseResolutions[0]});
     }).catch((err) => {
         next(err);
     });

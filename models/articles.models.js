@@ -12,7 +12,13 @@ function selectArticle(articleId){
       });
 }
 
-function selectAllArticles(){
+function selectAllArticles(topicName){
+    const queryParams = [];
+    let queryConditions = "";
+    if (topicName){
+        queryConditions += 'WHERE articles.topic = $1';
+        queryParams.push(topicName);
+    }
     const queryString = `
         SELECT articles.article_id, articles.title, articles.topic,
             articles.author, articles.created_at,
@@ -21,14 +27,13 @@ function selectAllArticles(){
         FROM articles
         LEFT JOIN comments
             ON articles.article_id = comments.article_id
+        ${queryConditions}
         GROUP BY articles.article_id
         ORDER BY articles.created_at DESC
     `;
-    return db.query(queryString).then((result) => {
-        if (result.rowCount === 0)
-            return Promise.reject({status: 404, msg: "Not Found"});
+    return db.query(queryString, queryParams).then((result) => {
         return result.rows;
-      });
+    });
 }
 
 function updateArticleVotes(articleId, incVotes = 0){
