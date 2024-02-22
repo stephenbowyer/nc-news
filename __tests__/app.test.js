@@ -492,3 +492,31 @@ describe('DELETE /api/comments/:comment_id', () => {
             });
     });
 });
+describe('GET /api/users', () => {
+    test('200: should return an array with the expected number of users', () => {
+        return request(app)
+            .get('/api/users')
+            .expect(200)
+            .then(({body}) => {
+                expect(Array.isArray(body.users)).toBe(true);
+                expect(body.users.length).toBe(data.userData.length);
+            });
+    });
+    test('200: should return the expected fields from users', () => {
+        return request(app)
+            .get('/api/users')
+            .expect(200)
+            .then(({body}) => {
+                expect(Object.keys(body.users[0])).toContain('username', 'name', 'avatar_url');
+            });
+    });
+    test('200: should return the expected user data from the test dataset', () => {
+        return request(app)
+            .get('/api/users')
+            .expect(200)
+            .then(({body}) => {
+                expect(body.users).toMatchObject(data.userData);
+                expect(body.users).toEqual(data.userData);
+            });
+    });
+});
