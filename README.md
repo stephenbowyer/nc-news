@@ -18,6 +18,6 @@ npm run seed
 echo PGDATABASE=nc_news >.env.environment  
 echo PGDATABASE=nc_news_test >.env.test
 
-# Compatibility
+## Compatibility
 Tested on Node.js version 21.4.0 and PostgreSQL 14.10.
 
