@@ -10,7 +10,7 @@ function getArticle(request, response, next){
 }
 
 function getArticles(request, response, next){
-    const promises = [selectAllArticles(request.query.topic)];
+    const promises = [selectAllArticles(request.query.topic, request.query.sort_by, request.query.order)];
     if (request.query.topic){
         promises.push(selectTopic(request.query.topic));
     }

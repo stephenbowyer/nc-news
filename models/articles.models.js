@@ -22,9 +22,16 @@ function selectArticle(articleId){
       });
 }
 
-function selectAllArticles(topicName){
+function selectAllArticles(topicName, sortBy = 'created_at', sortOrder = 'DESC'){
+    const validFields = ['article_id', 'title', 'topic', 'author', 'created_at', 'votes', 'article_img_url', 'comment_count'];
     const queryParams = [];
-    let queryConditions = "";
+    let queryConditions = '';
+    if (!validFields.includes(sortBy.toLocaleLowerCase()))
+        return Promise.reject({status: 400, msg: "Bad Request"});
+    if (sortBy.toLocaleLowerCase() !== 'comment_count')
+        sortBy = 'articles.'+sortBy;
+    if (!((sortOrder.toUpperCase() === 'ASC') || (sortOrder.toUpperCase() === 'DESC')))
+        return Promise.reject({status: 400, msg: "Bad Request"});
     if (topicName){
         queryConditions += 'WHERE articles.topic = $1';
         queryParams.push(topicName);
@@ -33,14 +40,15 @@ function selectAllArticles(topicName){
         SELECT articles.article_id, articles.title, articles.topic,
             articles.author, articles.created_at,
             articles.votes, articles.article_img_url,
-            COUNT(comments.body) AS comment_count
+            CAST( COUNT(comments.body) AS INTEGER) AS comment_count
         FROM articles
         LEFT JOIN comments
             ON articles.article_id = comments.article_id
         ${queryConditions}
         GROUP BY articles.article_id
-        ORDER BY articles.created_at DESC
+        ORDER BY ${sortBy} ${sortOrder}
     `;
+
     return db.query(queryString, queryParams).then((result) => {
         return result.rows;
     });
