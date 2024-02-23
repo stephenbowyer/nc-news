@@ -675,3 +675,33 @@ describe('GET /api/users', () => {
             });
     });
 });
+describe('GET /api/users/:username', () => {
+    test('200: should return an user object containing the expected fields', () => {
+        return request(app)
+            .get('/api/users/rogersop')
+            .expect(200)
+            .then(({body}) => {
+                expect(typeof body.user).toBe('object');
+                expect(Array.isArray(body.user)).toBe(false);
+                expect(Object.keys(body.user)).toContain('username', 'name', 'avatar_url');
+            });
+    });    
+    test('200: should return a user object containing data from the test dataset', () => {
+        const expectedOutput = {...data.userData[2]}; //rogersop
+        return request(app)
+            .get('/api/users/rogersop')
+            .expect(200)
+            .then(({body}) => {
+                expect(typeof body.user).toBe('object');
+                expect(body.user).toMatchObject(expectedOutput);
+            });
+    });
+    test('404: should return not found when non-exsitent username specified', () => {
+        return request(app)
+            .get('/api/users/nonexistentusername')
+            .expect(404)
+            .then(({body}) => {
+                expect(body.msg).toBe('Not Found');
+            });
+    });    
+});
