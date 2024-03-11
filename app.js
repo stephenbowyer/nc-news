@@ -5,6 +5,8 @@ app.use(express.json());
 
 const apiRouter = require('./routes/api-router.js');
 
+app.use(cors());
+
 app.use('/api', apiRouter);
 
 app.use((err,request,response,next) => {
