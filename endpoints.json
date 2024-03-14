@@ -96,7 +96,7 @@
     "description": "takes a comment ID and removes it from the database",
     "queries": []
   },
-  "GET /users": {
+  "GET /api/users": {
     "description": "serves an array of all users",
     "queries": [],
     "exampleResponse": {
