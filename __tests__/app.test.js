@@ -110,7 +110,26 @@ describe('GET /api/articles/:article_id', () => {
             .then(({body}) => {
                 expect(body.msg).toBe('Bad Request');
             });
-    });    
+    });
+    test('200: should return correct count of comments for requested article', () => {
+        const articleId = 1;
+        return request(app)
+            .get(`/api/articles/${articleId}`)
+            .expect(200)
+            .then(({body}) => {
+                const expectedLength = data.commentData.filter((comment) => comment.article_id === articleId).length;
+                expect(Number(body.article.comment_count)).toBe(expectedLength);
+            });
+    });
+    test('200: should return correct count of zero comments for requested article', () => {
+        const articleId = 2;
+        return request(app)
+            .get(`/api/articles/${articleId}`)
+            .expect(200)
+            .then(({body}) => {
+                expect(Number(body.article.comment_count)).toBe(0);
+            });
+    });
 });
 
 
@@ -154,7 +173,143 @@ describe('GET /api/articles', () => {
                 });
             });
     });
-});
+    describe('GET /api/articles?topic=', () => {
+        test('200: should return only articles with requested topic', () => {
+            const topicName = "cats";
+            const expectedOutput = data.articleData.filter(({...article}) => article.topic === topicName);
+            return request(app)
+                .get(`/api/articles?topic=${topicName}`)
+                .expect(200)
+                .then(({body}) => {
+                    expect(Array.isArray(body.articles)).toBe(true);
+                    expect(body.articles.length).toBe(expectedOutput.length);
+                });
+        });
+        test('200: should return empty array if no articles found for valid topic', () => {
+            const topicName = "paper";
+            return request(app)
+                .get(`/api/articles?topic=${topicName}`)
+                .expect(200)
+                .then(({body}) => {
+                    expect(Array.isArray(body.articles)).toBe(true);
+                    expect(body.articles.length).toBe(0);
+                });
+        });
+        test('404: should return Not Found if specified topic is not valid', () => {
+            const topicName = "notvalid";
+            return request(app)
+                .get(`/api/articles?topic=${topicName}`)
+                .expect(404)
+                .then(({body}) => {
+                    expect(body.msg).toBe('Not Found');
+                });
+        });
+    });
+    describe('GET /api/articles?sort_by=', () => {
+        test('200: should return articles sorted descending by created date by default', () => {
+            return request(app)
+                .get('/api/articles')
+                .expect(200)
+                .then(({body}) => {
+                    expect(body.articles).toBeSortedBy('created_at', {descending: true});
+                });
+        });
+        test('200: should return articles sorted ascending by created date by default', () => {
+            return request(app)
+                .get('/api/articles?order=asc')
+                .expect(200)
+                .then(({body}) => {
+                    expect(body.articles).toBeSortedBy('created_at', {descending: false});
+                });
+        });
+        test('200: should return articles sorted descending by votes', () => {
+            return request(app)
+                .get('/api/articles?sort_by=votes')
+                .expect(200)
+                .then(({body}) => {
+                    expect(body.articles).toBeSortedBy('votes', {descending: true});
+                });
+        });
+        test('200: should return articles sorted ascending by votes', () => {
+            return request(app)
+                .get('/api/articles?sort_by=votes&order=asc')
+                .expect(200)
+                .then(({body}) => {
+                    expect(body.articles).toBeSortedBy('votes', {descending: false});
+                });
+        });
+        test('200: should return articles sorted descending by title', () => {
+            return request(app)
+                .get('/api/articles?sort_by=title&order=desc')
+                .expect(200)
+                .then(({body}) => {
+                    expect(body.articles).toBeSortedBy('title', {descending: true});
+                });
+        });
+        test('200: should return articles sorted ascending by title', () => {
+            return request(app)
+                .get('/api/articles?sort_by=title&order=asc')
+                .expect(200)
+                .then(({body}) => {
+                    expect(body.articles).toBeSortedBy('title', {descending: false});
+                });
+        });
+        test('400: should return Bad Request on invalid requested sort field', () => {
+            return request(app)
+                .get('/api/articles?sort_by=invalid')
+                .expect(400)
+                .then(({body}) => {
+                    expect(body.msg).toBe('Bad Request');
+                });
+        });
+        test('400: should return Bad Request if invalid sort order requested', () => {
+            return request(app)
+                .get('/api/articles?sort_by=comment_count&order=invalid')
+                .expect(400)
+                .then(({body}) => {
+                    expect(body.msg).toBe('Bad Request');
+                });
+        });
+        test('200: should return articles sorted descending by number of comments', () => {
+            return request(app)
+                .get('/api/articles?sort_by=comment_count&order=desc')
+                .expect(200)
+                .then(({body}) => {
+                    expect(body.articles).toBeSortedBy('comment_count', {descending: true});
+                });
+        });
+        test('200: should return articles sorted ascending by number of comments', () => {
+            return request(app)
+                .get('/api/articles?sort_by=comment_count&order=asc')
+                .expect(200)
+                .then(({body}) => {
+                    expect(body.articles).toBeSortedBy('comment_count', {descending: false});
+                });
+        });
+        test('200: should return articles sorted ascending by number of comments for a specified topic only', () => {
+            return request(app)
+                .get('/api/articles?sort_by=comment_count&order=asc&topic=mitch')
+                .expect(200)
+                .then(({body}) => {
+                    expect(body.articles).toBeSortedBy('comment_count', {descending: false});
+                    body.articles.forEach((article) => {
+                        expect(article.topic).toBe("mitch");
+                    })
+                });
+        });
+        test('200: should return articles sorted descending by number of comments for a specified topic only', () => {
+            return request(app)
+                .get('/api/articles?sort_by=comment_count&order=desc&topic=mitch')
+                .expect(200)
+                .then(({body}) => {
+                    expect(body.articles).toBeSortedBy('comment_count', {descending: true});
+                    body.articles.forEach((article) => {
+                        expect(article.topic).toBe("mitch");
+                    })
+                });
+        });
+    });
+})
 describe('GET /api/articles/:article_id/comments', () => {
     test('200: should return an array of comment objects matching the dataset', () => {
         const articleId = 3;
@@ -671,4 +826,34 @@ describe('GET /api/users', () => {
                 expect(body.users).toEqual(data.userData);
             });
     });
+});
+describe('GET /api/users/:username', () => {
+    test('200: should return an user object containing the expected fields', () => {
+        return request(app)
+            .get('/api/users/rogersop')
+            .expect(200)
+            .then(({body}) => {
+                expect(typeof body.user).toBe('object');
+                expect(Array.isArray(body.user)).toBe(false);
+                expect(Object.keys(body.user)).toContain('username', 'name', 'avatar_url');
+            });
+    });    
+    test('200: should return a user object containing data from the test dataset', () => {
+        const expectedOutput = {...data.userData[2]}; //rogersop
+        return request(app)
+            .get('/api/users/rogersop')
+            .expect(200)
+            .then(({body}) => {
+                expect(typeof body.user).toBe('object');
+                expect(body.user).toMatchObject(expectedOutput);
+            });
+    });
+    test('404: should return not found when non-exsitent username specified', () => {
+        return request(app)
+            .get('/api/users/nonexistentusername')
+            .expect(404)
+            .then(({body}) => {
+                expect(body.msg).toBe('Not Found');
+            });
+    });    
 });
