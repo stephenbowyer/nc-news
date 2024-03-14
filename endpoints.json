@@ -106,5 +106,19 @@
         "avatar_url": "https://vignette.wikia.nocookie.net/mrmen/images/4/4f/MR_JELLY_4A.jpg/revision/latest?cb=20180104121141"
         }]
     }
+  },
+  "GET /api/users/:username": {
+    "description": "serves an object relating to a specified username",
+    "queries": [],
+    "exampleRequest": {
+      "username": "butter_bridge"
+    },
+    "exampleResponse": {
+      "user": {
+        "username": "jessjelly",
+        "name": "Jess Jelly",
+        "avatar_url": "https://vignette.wikia.nocookie.net/mrmen/images/4/4f/MR_JELLY_4A.jpg/revision/latest?cb=20180104121141"
+        }
+    }
   }
 }
