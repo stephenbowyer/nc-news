@@ -95,5 +95,16 @@
   "DELETE /api/comments/:comment_id": {
     "description": "takes a comment ID and removes it from the database",
     "queries": []
+  },
+  "GET /users": {
+    "description": "serves an array of all users",
+    "queries": [],
+    "exampleResponse": {
+      "users": [{
+        "username": "jessjelly",
+        "name": "Jess Jelly",
+        "avatar_url": "https://vignette.wikia.nocookie.net/mrmen/images/4/4f/MR_JELLY_4A.jpg/revision/latest?cb=20180104121141"
+        }]
+    }
   }
 }
