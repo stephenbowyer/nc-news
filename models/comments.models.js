@@ -28,4 +28,19 @@ function removeComment(commentId){
     });
 }
 
-module.exports = {selectArticleComments, insertArticleComment, removeComment};
+function updateCommentVotes(commentId, incVotes = 0){
+    if (!(/^-?\d+$/.test(incVotes)) || !(/^\d+$/.test(commentId)))
+        return Promise.reject({status: 400, msg: "Bad Request"});
+    const queryString = `
+        UPDATE comments SET votes = votes + $1
+        WHERE comment_id = $2
+        RETURNING *
+        `;
+    return db.query(queryString, [incVotes, commentId]).then((result) => {
+        if (result.rowCount === 0)
+            return Promise.reject({status: 404, msg: "Not Found"});
+        return result.rows[0];
+    })
+}
+
+module.exports = {selectArticleComments, insertArticleComment, removeComment, updateCommentVotes};

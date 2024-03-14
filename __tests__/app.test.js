@@ -492,6 +492,158 @@ describe('DELETE /api/comments/:comment_id', () => {
             });
     });
 });
+
+
+
+
+
+
+
+describe('PATCH /api/comments/:comment', () => {
+    test('200: should return an updated patched comment with an increase in votes', () => {
+        const commentId = 1;
+        const patch = {inc_votes: 100};
+        const expectedOutput = {...data.commentData[commentId - 1]};
+        expectedOutput.votes += patch.inc_votes;
+        // adjust for hour's difference between dataset and database
+        const createDate = new Date(expectedOutput.created_at);
+        expectedOutput.created_at = new Date(createDate.setHours(createDate.getHours() - 1)).toISOString();
+        return request(app)
+            .patch(`/api/comments/${commentId}`)
+            .send(patch)
+            .expect(200)
+            .then(({body}) => {
+                expect(typeof body.comment).toBe('object');
+                expect(Array.isArray(body.comment)).not.toBe(true);
+                expect(body.comment).toMatchObject(expectedOutput);
+                expect(body.comment.votes).toBe(expectedOutput.votes);
+            });
+    });
+    test('200: should return an updated patched comment with a decrease in votes', () => {
+        const commentId = 1;
+        const patch = {inc_votes: -50};
+        const expectedOutput = {...data.commentData[commentId - 1]};
+        expectedOutput.votes += patch.inc_votes;
+        // adjust for hour's difference between dataset and database
+        const createDate = new Date(expectedOutput.created_at);
+        expectedOutput.created_at = new Date(createDate.setHours(createDate.getHours() - 1)).toISOString();
+        return request(app)
+            .patch(`/api/comments/${commentId}`)
+            .send(patch)
+            .expect(200)
+            .then(({body}) => {
+                expect(typeof body.comment).toBe('object');
+                expect(Array.isArray(body.comment)).not.toBe(true);
+                expect(body.comment).toMatchObject(expectedOutput);
+                expect(body.comment.votes).toBe(expectedOutput.votes);
+            });
+    });
+    test('200: should return an unchanged comment when votes not changed', () => {
+        const commentId = 1;
+        const patch = {inc_votes: 0};
+        const expectedOutput = {...data.commentData[commentId - 1]};
+        expectedOutput.votes += patch.inc_votes;
+        // adjust for hour's difference between dataset and database
+        const createDate = new Date(expectedOutput.created_at);
+        expectedOutput.created_at = new Date(createDate.setHours(createDate.getHours() - 1)).toISOString();
+        return request(app)
+            .patch(`/api/comments/${commentId}`)
+            .send(patch)
+            .expect(200)
+            .then(({body}) => {
+                expect(typeof body.comment).toBe('object');
+                expect(Array.isArray(body.comment)).not.toBe(true);
+                expect(body.comment).toMatchObject(expectedOutput);
+                expect(body.comment.votes).toBe(expectedOutput.votes);
+            });
+    });
+    test('200: should return an unchanged comment when votes key not specified in request object', () => {
+        const commentId = 1;
+        const patch = {};
+        const expectedOutput = {...data.commentData[commentId - 1]};
+        // adjust for hour's difference between dataset and database
+        const createDate = new Date(expectedOutput.created_at);
+        expectedOutput.created_at = new Date(createDate.setHours(createDate.getHours() - 1)).toISOString();
+        return request(app)
+            .patch(`/api/comments/${commentId}`)
+            .send(patch)
+            .expect(200)
+            .then(({body}) => {
+                expect(typeof body.comment).toBe('object');
+                expect(Array.isArray(body.comment)).not.toBe(true);
+                expect(body.comment).toMatchObject(expectedOutput);
+                expect(body.comment.votes).toBe(expectedOutput.votes);
+            });
+    });
+    test('200: should return an updated patched comment with an increase in votes if supplied as a string', () => {
+        const commentId = 1;
+        const patch = {inc_votes: "100"};
+        const expectedOutput = {...data.commentData[commentId - 1]};
+        expectedOutput.votes += Number(patch.inc_votes);
+        // adjust for hour's difference between dataset and database
+        const createDate = new Date(expectedOutput.created_at);
+        expectedOutput.created_at = new Date(createDate.setHours(createDate.getHours() - 1)).toISOString();
+        return request(app)
+            .patch(`/api/comments/${commentId}`)
+            .send(patch)
+            .expect(200)
+            .then(({body}) => {
+                expect(typeof body.comment).toBe('object');
+                expect(Array.isArray(body.comment)).not.toBe(true);
+                expect(body.comment).toMatchObject(expectedOutput);
+                expect(body.comment.votes).toBe(expectedOutput.votes);
+            });
+    });
+    test('400: should return bad request error if non-numeric votes provided', () => {
+        const commentId = 1;
+        const patch = {inc_votes: "invalid input"};
+        return request(app)
+            .patch(`/api/comments/${commentId}`)
+            .send(patch)
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toBe('Bad Request');
+            });
+    });
+    test('400: should return bad request error if non-numeric comment id provided', () => {
+        const commentId = "invalid comment";
+        const patch = {inc_votes: 100};
+        return request(app)
+            .patch(`/api/comments/${commentId}`)
+            .send(patch)
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toBe('Bad Request');
+            });
+    });
+    test('404: should return not found error if specified comment does not exist', () => {
+        const commentId = 999;
+        const patch = {inc_votes: 100};
+        return request(app)
+            .patch(`/api/comments/${commentId}`)
+            .send(patch)
+            .expect(404)
+            .then(({body}) => {
+                expect(body.msg).toBe('Not Found');
+            });
+    });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 describe('GET /api/users', () => {
     test('200: should return an array with the expected number of users', () => {
         return request(app)
