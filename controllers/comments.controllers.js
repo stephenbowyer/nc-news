@@ -1,5 +1,5 @@
 const {selectArticle} = require("../models/articles.models.js");
-const {selectArticleComments, insertArticleComment, removeComment} = require("../models/comments.models.js");
+const {selectArticleComments, insertArticleComment, removeComment, updateCommentVotes} = require("../models/comments.models.js");
 
 function getArticleComments(request, response, next){
     const promises = [selectArticleComments(request.params.article_id)];
@@ -28,5 +28,12 @@ function deleteComment(request, response, next){
         next(err);
     });
 }
+function patchComment(request, response, next){
+    updateCommentVotes(request.params.comment_id, request.body.inc_votes).then((comment) => {
+        response.status(200).send({comment});
+    }).catch((err) => {
+        next(err);
+    });
+}
 
-module.exports = {getArticleComments, postArticleComment, deleteComment};
+module.exports = {getArticleComments, postArticleComment, deleteComment, patchComment};
